@@ -1,0 +1,114 @@
+table Solution2
+	lineageTag: 987f90fb-ddf4-4ca0-b7f3-3934f0dad2c0
+
+	column Store
+		dataType: string
+		lineageTag: 96f740f0-2c7a-4665-adb0-4b3eaa9c1d2e
+		summarizeBy: none
+		sourceColumn: Store
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f4ba6588-c381-4412-b6b6-175b4d036f2d
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 72807b7d-e3f9-460d-9284-07dcc20007fb
+		summarizeBy: none
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column RT
+		dataType: int64
+		formatString: 0
+		lineageTag: dafb573c-d09b-4195-8b6b-e6d925d44f17
+		summarizeBy: sum
+		sourceColumn: RT
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source =
+				let
+				    Source = Raw,
+				    GroupedRows = Table.Group (
+				        Source,
+				        { "Store" },
+				        {
+				            {
+				                "Count",
+				                ( t ) =>
+				                    let
+				                        a = Table.AddColumn (
+				                            t,
+				                            "ToDate",
+				                            ( t2 ) =>
+				                                List.Min ( Table.SelectRows ( t, each [Date] > t2[Date] )[Date] )
+				                                    ?? t2[Date]
+				                        ),
+				                        b = Table.AddColumn (
+				                            a,
+				                            "DateList",
+				                            each { Number.From ( [Date] ) .. Number.From ( [ToDate] ) - 1 }
+				                        ),
+				                        m = Table.AddIndexColumn ( b, "Index", 1, 1 ),
+				                        c = Table.ExpandListColumn ( m, "DateList" ),
+				                        d = Table.AddColumn (
+				                            c,
+				                            "NewDate",
+				                            each Date.From ( [DateList] ) ?? [Date]
+				                        ),
+				                        e = Table.RemoveColumns ( d, { "ToDate", "DateList", "Date" } )
+				                    in
+				                        e
+				            }
+				        }
+				    ),
+				    ExpandedCount = Table.ExpandTableColumn (
+				        GroupedRows,
+				        "Count",
+				        { "NewDate", "Quantity", "Index" },
+				        { "NewDate", "Quantity", "Index" }
+				    ),
+				    Transformation = List.Combine (
+				        List.Transform (
+				            Table.ToRows ( Table.Distinct ( ExpandedCount[[Store], [Index]] ) ),
+				            ( x ) =>
+				                let
+				                    a = List.Skip (
+				                        List.Accumulate (
+				                            Table.SelectRows (
+				                                ExpandedCount,
+				                                ( t ) => t[Store] = x{0} and t[Index] = x{1}
+				                            )[Quantity],
+				                            { 0 },
+				                            ( s, c ) => s & { List.Last ( s ) + c }
+				                        )
+				                    )
+				                in
+				                    a
+				        )
+				    ),
+				    Result = Table.FromColumns (
+				        List.RemoveLastN ( Table.ToColumns ( ExpandedCount ), 1 ) & { Transformation },
+				        type table [ Store = text, Date = date, Quantity = Int64.Type, RT = Int64.Type ]
+				    )
+				in
+				    Result
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

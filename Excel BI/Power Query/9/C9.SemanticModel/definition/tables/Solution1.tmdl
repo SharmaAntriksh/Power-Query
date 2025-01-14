@@ -1,0 +1,38 @@
+table Solution1
+	lineageTag: 2fda8fd7-d4a0-4c69-8dd1-1896a4eb7813
+
+	column 'Original Text'
+		dataType: string
+		lineageTag: 43c4e619-c7de-473e-8e15-1bc8a6e5985e
+		summarizeBy: none
+		sourceColumn: Original Text
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Final Text'
+		dataType: string
+		lineageTag: 458051bd-59ab-4077-bdec-ee4429ec28d5
+		summarizeBy: none
+		sourceColumn: Final Text
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source = ```
+				let
+				    Source = Sentences,
+				    Result = Table.AddColumn ( Source, "Final Text", (x) => 
+				let a = Text.Split ( x[Original Text], " " ),
+				b = Table.ToRows ( Replacements ),
+				c = List.Accumulate ( b, x[Original Text], (s, c) => Text.Replace ( s, c{0}, c{1} ) )
+				in c, type text
+				)
+				in
+				    Result
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

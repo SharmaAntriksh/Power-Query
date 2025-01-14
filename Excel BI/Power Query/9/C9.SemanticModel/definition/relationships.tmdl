@@ -1,0 +1,6 @@
+relationship AutoDetected_3cec07a5-ff04-4803-bce4-695e8444be6b
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution1.'Original Text'
+	toColumn: Sentences.'Original Text'
+

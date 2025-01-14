@@ -1,0 +1,23 @@
+table Raw
+	lineageTag: 3ebc85eb-6144-417a-aded-d3ac5a741355
+
+	column Data
+		dataType: string
+		lineageTag: 71881368-5ff2-43a0-adaa-cea2796c99c0
+		summarizeBy: none
+		sourceColumn: Data
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Raw = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("VZJNTgMxDIWvgrouEMfxT7ZlxQKEQKyqLkZ01EYtU6kzSIhjcQRORhhnJkXKwnHyPfs5Wa8Xq6bbHZtt2+8Xm+V6AQKgjOLHnbtx4NQOgpA4C5fA7vbw/vM9blfn5isdx9ADIWCIOtEu8BgqAQmLXaLK3u1T1xR9T6qCaJesUhTHkWFqoHL33TZNXG5ZMK+5Jlt59CoUTSgg/INPXdsXAS9EDhBj5YMpRxeIY6ly0fRD+5neTpbPtAvgqcJYYA4oluYL9jHt2vNUGZQyC/OsfTCr0aMUEzmq8FNzSP3QdOWE1Afl+lLRaNUcWdbzBf380ffz0IJky2BGr//69lLe38Usa7hW+LVLQ7u9ehmaoe1tvKheo5LM1tFajvn3MNjckYvE5hc=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Data = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

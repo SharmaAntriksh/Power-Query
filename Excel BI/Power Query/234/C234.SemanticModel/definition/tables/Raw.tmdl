@@ -1,0 +1,90 @@
+table Raw
+	lineageTag: a9963b12-bc5b-4535-80ef-6e7828032fac
+
+	column Employee
+		dataType: string
+		lineageTag: 82c2805d-5467-4116-bfe9-0af5c37f1672
+		summarizeBy: none
+		sourceColumn: Employee
+
+		annotation SummarizationSetBy = Automatic
+
+	column StartDate1
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b65ac380-1221-4b10-a2ff-14a6bf9c9b1f
+		summarizeBy: none
+		sourceColumn: StartDate1
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column EndDate1
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: aca053f8-3c37-4707-a1d8-1d5fcee9ab5a
+		summarizeBy: none
+		sourceColumn: EndDate1
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column StartDate2
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 43daa0dc-7fe4-4745-924b-3d47eb524303
+		summarizeBy: none
+		sourceColumn: StartDate2
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column EndDate2
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a17d8658-15fa-4316-ac39-d060e8da5514
+		summarizeBy: none
+		sourceColumn: EndDate2
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column StartDate3
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 838fcbe4-0d0f-47b8-a280-0cabc5be3635
+		summarizeBy: none
+		sourceColumn: StartDate3
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column EndDate3
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 3f82da7f-e211-4a68-918a-d6b54b1e4edd
+		summarizeBy: none
+		sourceColumn: EndDate3
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition Raw = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("Vc0xC4AgEAXg/+KccJ4Wtjc21SgO0tIQBWFD/74Oyl7g8nnv3oWgxmnLWVWKrCajmdgJPMCwJi6wCKfvtQfsC2IV1HDkWX4NRizgexLvziWtcvnOu9JfI3DCBHg7+nTsSToaXPMIXDMtgH6nXEGMFw==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Employee = _t, StartDate1 = _t, EndDate1 = _t, StartDate2 = _t, EndDate2 = _t, StartDate3 = _t, EndDate3 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"StartDate1", type date}, {"EndDate1", type date}, {"StartDate2", type date}, {"EndDate2", type date}, {"StartDate3", type date}, {"EndDate3", type date}}, "en-GB")
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

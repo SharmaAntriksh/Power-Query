@@ -1,0 +1,70 @@
+table Solution2
+	lineageTag: 722213f8-a91c-4ae3-9e91-b9dde5e5ef4a
+
+	column 'Employee Name'
+		dataType: string
+		lineageTag: a840ae45-383c-40c6-894a-099e504c86aa
+		summarizeBy: none
+		sourceColumn: Employee Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Leaves'
+		dataType: int64
+		formatString: 0
+		lineageTag: c7e242a5-c4af-408d-a5ac-61040fd2dddb
+		summarizeBy: none
+		sourceColumn: Total Leaves
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    Transform = 
+				        List.Transform (
+				            Table.ToRows ( Source ),
+				            ( x ) =>
+				                let
+				                    EmployeeName = x{0},
+				                    RemoveNulls = 
+				                        List.Skip ( List.RemoveNulls ( x ) ),
+				                    Split = 
+				                        List.Split ( RemoveNulls, 2 ),
+				                    GenerateDates = 
+				                        List.Transform (
+				                            Split,
+				                            ( d ) =>
+				                                let
+				                                    StartDate = d{0},
+				                                    EndDate = d{1},
+				                                    DateList = 
+				                                        List.Dates (
+				                                            StartDate,
+				                                            1 + Duration.Days ( EndDate - StartDate ),
+				                                            Duration.From ( 1 )
+				                                        ),
+				                                    RemoveWeekends = List.Select ( DateList, each 1 + Date.DayOfWeek ( _, Day.Monday ) <= 5 )
+				                                in
+				                                    RemoveWeekends
+				                        ),
+				                    LeaveCount = List.Count ( List.Distinct ( List.Combine ( GenerateDates ) ) ),
+				                    ToTable = 
+				                        Table.FromColumns (
+				                            { { EmployeeName }, { LeaveCount } },
+				                            type table [ Employee Name = text, Total Leaves = Int64.Type ]
+				                        )
+				                in
+				                    ToTable
+				        ),
+				    TablesCombined = Table.Sort ( Table.Combine ( Transform ), { "Employee Name", Order.Ascending } )
+				in
+				    TablesCombined
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

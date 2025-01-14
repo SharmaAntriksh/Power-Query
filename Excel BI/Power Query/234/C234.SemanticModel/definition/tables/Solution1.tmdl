@@ -1,0 +1,77 @@
+table Solution1
+	lineageTag: 64ec6c0b-f364-42c4-863f-2a60d05d667a
+
+	column Employee
+		dataType: string
+		lineageTag: 1ead5cc6-7881-4b83-b3d4-8770b828f98e
+		summarizeBy: none
+		sourceColumn: Employee
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Leaves'
+		dataType: int64
+		formatString: 0
+		lineageTag: 287136b3-4754-404b-9b39-74db999e4861
+		summarizeBy: none
+		sourceColumn: Total Leaves
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source =
+				let
+				    Source = Raw,
+				    Unpivot = Table.UnpivotOtherColumns ( Source, { "Employee" }, "Period", "Value" ),
+				    Transform = Table.TransformColumns (
+				        Unpivot,
+				        {
+				            {
+				                "Period",
+				                each Text.Combine ( List.RemoveLastN ( Text.ToList ( _ ), 1 ) ),
+				                type text
+				            }
+				        }
+				    ),
+				    Split_Table = List.Transform (
+				        Table.Split ( Transform, 2 ),
+				        ( x ) =>
+				            let
+				                a = Table.Pivot ( x, List.Distinct ( x[Period] ), "Period", "Value" ),
+				                b = Table.AddColumn (
+				                    a,
+				                    "Working Days",
+				                    ( y ) =>
+				                        List.Select (
+				                            List.Dates (
+				                                y[StartDate],
+				                                1 + Number.From ( y[EndDate] ) - Number.From ( y[StartDate] ),
+				                                Duration.From ( 1 )
+				                            ),
+				                            ( z ) =>
+				                                not List.Contains (
+				                                    { "Sunday", "Saturday" },
+				                                    Date.DayOfWeekName ( z )
+				                                )
+				                        )
+				                ),
+				                c = Table.ExpandListColumn ( b, "Working Days" ),
+				                d = c[[Employee], [Working Days]]
+				            in
+				                d
+				    ),
+				    Combine_Tables = Table.Combine ( Split_Table ),
+				    GroupedRows = Table.Group (
+				        Combine_Tables,
+				        { "Employee" },
+				        { { "Total Leaves", each Table.RowCount ( Table.Distinct ( _ ) ), Int64.Type } }
+				    ),
+				    Sorted_Rows = Table.Sort ( GroupedRows, { { "Employee", Order.Ascending } } )
+				in
+				    Sorted_Rows
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

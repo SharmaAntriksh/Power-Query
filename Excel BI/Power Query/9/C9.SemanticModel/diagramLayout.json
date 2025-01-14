@@ -1,0 +1,61 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 568,
+            "y": 5
+          },
+          "nodeIndex": "Replacements",
+          "nodeLineageTag": "72ff22a5-925f-4745-b165-2d55f96b6e3f",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 294,
+            "y": 7
+          },
+          "nodeIndex": "Sentences",
+          "nodeLineageTag": "cbe3f5a7-907d-4deb-97ec-f4d8c51de87c",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 10,
+            "y": -5
+          },
+          "nodeIndex": "Solution1",
+          "nodeLineageTag": "2fda8fd7-d4a0-4c69-8dd1-1896a4eb7813",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

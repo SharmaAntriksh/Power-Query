@@ -1,0 +1,24 @@
+table Raw
+	lineageTag: c4fc3b79-f908-4222-9255-9c0a5597c332
+
+	column Column1
+		dataType: string
+		lineageTag: 3ca0ce9f-c5cc-4ef5-bee0-c2e8a6897887
+		summarizeBy: none
+		sourceColumn: Column1
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Raw = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WclSK1UElEQSmnCO6JH4dsQA=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Replaced Value" = Table.ReplaceValue(Source,"",null,Replacer.ReplaceValue,{"Column1"})
+				in
+				    #"Replaced Value"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

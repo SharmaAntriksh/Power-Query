@@ -1,0 +1,11 @@
+expression WeekDayNameTypes =
+		let
+		    Source = Expression.Evaluate ( "type table [" & Text.Combine ( List.Transform ( WeekdayNames, (x) => x & " = text" ), ", " ) & "]" )
+		in
+		    Source
+	lineageTag: c33a7c54-13f7-4047-b58c-e85d8012fe52
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Type
+

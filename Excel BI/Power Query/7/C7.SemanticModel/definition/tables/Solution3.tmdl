@@ -1,0 +1,111 @@
+table Solution3
+	lineageTag: 9d59c9cf-cb03-4f08-abe9-07aaf4cf8c14
+
+	column Name
+		dataType: string
+		lineageTag: 3a6b2831-79cd-4032-b714-da760a7ef8ff
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sun
+		dataType: string
+		lineageTag: 2505b9e2-6e76-417e-b159-2a97af41e23f
+		summarizeBy: none
+		sourceColumn: Sun
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mon
+		dataType: string
+		lineageTag: d704a75f-c297-4f25-97c4-2757f057ec89
+		summarizeBy: none
+		sourceColumn: Mon
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tue
+		dataType: string
+		lineageTag: c9d09284-afac-49be-bb12-c6ac56489ec0
+		summarizeBy: none
+		sourceColumn: Tue
+
+		annotation SummarizationSetBy = Automatic
+
+	column Wed
+		dataType: string
+		lineageTag: 18684b5e-33eb-4951-9517-6e67feb8cd20
+		summarizeBy: none
+		sourceColumn: Wed
+
+		annotation SummarizationSetBy = Automatic
+
+	column Thu
+		dataType: string
+		lineageTag: 15dd8a35-e78d-42ba-b85f-f14fff461d2c
+		summarizeBy: none
+		sourceColumn: Thu
+
+		annotation SummarizationSetBy = Automatic
+
+	column Fri
+		dataType: string
+		lineageTag: 0d5abc6f-2a72-4f61-b981-af865c9c0b66
+		summarizeBy: none
+		sourceColumn: Fri
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sat
+		dataType: string
+		lineageTag: 99ae2e1e-01e3-4252-a03c-464db2a80217
+		summarizeBy: none
+		sourceColumn: Sat
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution3 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    
+				    a = 
+				        List.TransformMany (
+				            List.Distinct ( Source[Name] ),
+				            ( z ) => WeekdayNames,
+				            ( x, y ) => { x, y }
+				        ),
+				    b = Table.ToRows ( Source ),
+				
+				    c = 
+				        Table.AddColumn (
+				            Table.FromRows (
+				                List.RemoveMatchingItems ( a, b ),
+				                type table [ Name = text, Day of Week = text ]
+				            ),
+				            "i",
+				            each "",
+				            type text
+				        ),
+				
+				    d = 
+				        Table.AddColumn (
+				            Table.SelectRows ( Source, each [Day of Week] <> "" ),
+				            "i",
+				            each "Y",
+				            type text
+				        ),
+				    e = c & d,
+				
+				    PivotedColumn = 
+				        Table.Pivot ( e, WeekdayNames, "Day of Week", "i" )
+				in
+				    PivotedColumn
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,30 @@
+table WeekdayNames
+	lineageTag: 0abf9944-fac7-44e2-8bfa-9faaf1083598
+
+	column WeekdayNames
+		dataType: string
+		lineageTag: 0885b205-65b2-440a-a4fe-6d4ac8e1a9b0
+		summarizeBy: none
+		sourceColumn: WeekdayNames
+
+		annotation SummarizationSetBy = Automatic
+
+	partition WeekdayNames = m
+		mode: import
+		source = ```
+				let
+				    Source = 
+				        List.Distinct (
+				            List.Transform (
+				                List.Dates ( Date.From ( DateTime.LocalNow() ), 10, Duration.From ( 1 ) ),
+				                each Text.Start ( Date.DayOfWeekName ( _ ), 3 )
+				            )
+				        )
+				in
+				    Source
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+

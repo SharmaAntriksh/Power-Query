@@ -1,0 +1,19 @@
+relationship AutoDetected_cb71b1e6-6be3-426a-bd66-e9d28b6076e4
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution1.Words
+	toColumn: Table.Words
+
+relationship AutoDetected_3732d5e0-a77d-4867-8d56-5a830372e89b
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution2.Words
+	toColumn: Table.Words
+
+relationship AutoDetected_2c6e6531-9f17-4c57-aedf-a24847b6671d
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution2.'Missing Alphabets'
+	toColumn: Solution1.'Missing Alphabets'
+

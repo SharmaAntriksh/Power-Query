@@ -1,0 +1,23 @@
+expression Attendance =
+		let
+		    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMjIwMtI1NNA1MFTSUQrOzSzJUIrVQRI2IkkYZIhPaXIlqqgpVlFjoKhvZnJGYmoOqoQJLglTXBIga30TiyrJFzUmIBoLAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Date = _t, Employees = _t]),
+		    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Date", type date}})
+		in
+		    #"Changed Type"
+	lineageTag: c9eea19a-c9dc-435a-af87-e3b4895ad1da
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression Employees =
+		let
+		    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WCs7NLMlQitWJVgrKT0otKgEzfUqTK8EMr/yMPDDDNzM5IzE1B8JOLALKxgIA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Employees = _t])
+		in
+		    Source
+	lineageTag: 0dd47a80-64ee-435d-ab6f-ce1c524d1098
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

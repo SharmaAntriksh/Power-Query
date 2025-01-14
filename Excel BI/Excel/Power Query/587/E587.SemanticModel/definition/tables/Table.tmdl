@@ -1,0 +1,31 @@
+table Table
+	lineageTag: bb3d0d4c-482a-4363-ba19-21fd1d445df0
+
+	column Strings
+		dataType: string
+		lineageTag: b9676a5b-7b5b-4184-bbcf-ad53bdf8a7c4
+		summarizeBy: none
+		sourceColumn: Strings
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Answer Expected'
+		dataType: string
+		lineageTag: 1deaa0a9-ae69-4b05-ac1d-1941eabfe605
+		summarizeBy: none
+		sourceColumn: Answer Expected
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Table = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("bY/LDoQgDEX/hbV/ZFw0Dq+MUnQUxa+f28JmkjkbymlvKONo7pXqboZ+TsNonE283wecVFqKfnLx2wXbC3FE12zXJ6ZPRoP0akUAcTpjI5/ELAPWosHgFEjhXzSTauQQuWy0uOSQFAHTwtCCtnQzfwQ8WxfmfDgvKzbTZUd7Mg/9vDgF2QHDbRAGNPkfzXp600ozZXJUEJY7BEGBrIu59rFipukL", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Strings = _t, #"Answer Expected" = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

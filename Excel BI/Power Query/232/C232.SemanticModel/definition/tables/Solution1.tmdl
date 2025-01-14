@@ -1,0 +1,94 @@
+table Solution1
+	lineageTag: 852a2869-504d-4cdb-b5a3-58d6135914bd
+
+	column Store
+		dataType: string
+		lineageTag: 8723c904-8c51-4018-88c8-ca912ed04626
+		summarizeBy: none
+		sourceColumn: Store
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 1c380e15-cb1a-42eb-9ee6-70bdb8d4f950
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 3286dd61-b8ad-4f36-9061-6915919f2b35
+		summarizeBy: none
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column RT
+		dataType: int64
+		formatString: 0
+		lineageTag: 1114cef1-7ef7-493d-819c-43c444267ea1
+		summarizeBy: sum
+		sourceColumn: RT
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source =
+				let
+				    Source = Raw,
+				    a = List.Combine (
+				        List.Transform (
+				            List.Distinct ( Source[Store] ),
+				            ( x ) =>
+				                let
+				                    a = Table.RowCount ( Table.SelectRows ( Source, each [Store] = x ) ),
+				                    b = List.Repeat ( { x }, a ),
+				                    n = { 0 .. a - 1 },
+				                    c = List.Zip ( { b, n } )
+				                in
+				                    c
+				        )
+				    ),
+				    b = List.Combine (
+				        List.Transform (
+				            a,
+				            ( x ) =>
+				                let
+				                    a = Table.SelectRows ( Source, each [Store] = x{0} ),
+				                    b = a{x{1}},
+				                    c = a{x{1} + 1}?,
+				                    d = try
+				                        List.Transform (
+				                            { Number.From ( b[Date] ) .. Number.From ( c[Date] ) - 1 },
+				                            each Date.From ( _ )
+				                        )
+				                    otherwise
+				                        { b[Date] },
+				                    s = List.Repeat ( { x{0} }, List.Count ( d ) ),
+				                    q = List.Repeat ( { a{x{1}}[Quantity] }, List.Count ( d ) ),
+				                    acc = List.Skip (
+				                        List.Accumulate ( q, { 0 }, ( s, c ) => s & { List.Last ( s ) + c } )
+				                    ),
+				                    f = List.Zip ( { s, d, q, acc } )
+				                in
+				                    f
+				        )
+				    ),
+				    c = Table.FromRows (
+				        b,
+				        type table [ Store = text, Date = date, Quantity = Int64.Type, RT = Int64.Type ]
+				    )
+				in
+				    c
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

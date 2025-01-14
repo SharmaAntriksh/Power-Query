@@ -1,0 +1,89 @@
+table Solution2
+	lineageTag: 8d7224f1-267f-43a0-bc09-eda0074061e7
+
+	column Animals
+		dataType: string
+		lineageTag: a3d12fde-c1d3-4cdc-8940-b9af6cfc6c53
+		summarizeBy: none
+		sourceColumn: Animals
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park1
+		dataType: string
+		lineageTag: a3d5edcf-094f-4106-bca4-290bd3fe94f2
+		summarizeBy: none
+		sourceColumn: Park1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park2
+		dataType: string
+		lineageTag: 6946dc21-1040-4f07-8c85-f0f811f7ef06
+		summarizeBy: none
+		sourceColumn: Park2
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park3
+		dataType: string
+		lineageTag: 03c303b8-f789-41e6-887f-ad76da066e2a
+		summarizeBy: none
+		sourceColumn: Park3
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park4
+		dataType: string
+		lineageTag: d18aa7b8-a8dd-4ab5-94fe-db5c409e8dc6
+		summarizeBy: none
+		sourceColumn: Park4
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park5
+		dataType: string
+		lineageTag: 6fb071d6-0aac-4cfc-b1ad-83f692e949b6
+		summarizeBy: none
+		sourceColumn: Park5
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    ReplacedValue = 
+				        Table.ReplaceValue ( Source, "", null, Replacer.ReplaceValue, { "Animals" } ),
+				    FilledDown = 
+				        Table.FillDown ( ReplacedValue, { "Animals" } ),
+				    PivotedColumn = 
+				        Table.Pivot (
+				            FilledDown,
+				            List.Sort ( List.Distinct ( FilledDown[Park] ) ),
+				            "Park",
+				            "Count",
+				            each
+				                let
+				                    n = List.First ( _ & { 0 } ),
+				                    b = if n = 0 then "NF" else if n > 20 then "Y" else "N"
+				                in
+				                    b
+				        ),
+				    TransformColumnTypes = 
+				        Table.TransformColumnTypes ( 
+				            PivotedColumn, 
+				            List.Transform ( 
+				                Table.ColumnNames ( PivotedColumn ), 
+				                each { _, type text } 
+				            ) 
+				        )
+				in
+				    TransformColumnTypes
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

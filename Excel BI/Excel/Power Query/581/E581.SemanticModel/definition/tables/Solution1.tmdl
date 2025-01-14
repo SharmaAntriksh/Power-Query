@@ -1,0 +1,54 @@
+table Solution1
+	lineageTag: 5296d213-9815-4990-a543-6f66e1804613
+
+	column Column1
+		dataType: string
+		lineageTag: f88b48ba-a5d6-4a1b-bd49-e2c1e2c8714f
+		summarizeBy: none
+		sourceColumn: Column1
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Answer Expected'
+		dataType: string
+		lineageTag: 3ac91161-a4f9-418f-ae83-8dc8f6bfa8a6
+		summarizeBy: none
+		sourceColumn: Answer Expected
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    fxAddIndex = (t, n, i) => Table.AddIndexColumn ( t, n, i, 1, Int64.Type ),
+				    a = 
+				        fxAddIndex (
+				            Table.Group ( Source, "Column1", { "Rc", each Table.RowCount ( _ ), Int64.Type }, 0 ), 
+				            "I", 1
+				        ),
+				    fx = ( value as nullable text ) =>
+				        let
+				            rows    = Table.SelectRows ( a, ( x ) => x[Column1] = value ),
+				            idx     = fxAddIndex ( rows, "Answer Expected", 1 ),
+				            group   = Table.Group ( idx, { "Column1", "I" }, { { "Count", each Table.Repeat ( _, _[Rc]{0} ) } } ),
+				            expand  = Table.ExpandTableColumn ( group, "Count", { "Rc", "Answer Expected" }, { "Rc", "Answer Expected" } ),
+				            replace = Table.ReplaceValue ( expand, each [Column1] = null, 0, ( x, y, z ) => if y then z else x, { "Answer Expected" } )
+				        in
+				            replace,
+				    result = 
+				        Table.Sort ( 
+				            Table.Combine ( 
+				                List.Transform ( List.Distinct ( Source[Column1] ), fx ) 
+				            ), 
+				            { { "I", Order.Ascending } } 
+				        )[[Column1],[Answer Expected]]
+				in
+				    result
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,45 @@
+table Raw
+	lineageTag: 8423a0b5-9a91-40cf-b878-845c3e4b5100
+
+	column Store
+		dataType: string
+		lineageTag: e7cb96a6-dc7b-43cf-b764-37f82b0bce41
+		summarizeBy: none
+		sourceColumn: Store
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: cae86f65-358b-441c-a999-78e1d16e86b4
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: e9f9468a-4114-42b0-b9bf-61b996c7ac7a
+		summarizeBy: none
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Raw = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("TczLDcAwCAPQXTgHiRhoz23HiNh/jdJPFG72k+Ux6KBGAhZlCCxLB0X73YubLN+L6+dnRiiLTYe+fj37znk1f3y5F/eNIm4=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Store = _t, Date = _t, Quantity = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Store", type text}, {"Date", type text}, {"Quantity", Int64.Type}}),
+				    #"Changed Type with Locale" = Table.TransformColumnTypes(#"Changed Type", {{"Date", type date}}, "en-GB")
+				in
+				    #"Changed Type with Locale"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

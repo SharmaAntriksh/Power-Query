@@ -1,0 +1,107 @@
+table Solution2
+	lineageTag: 698afedf-b7c7-415c-a20f-be650aa2e574
+
+	column Name
+		dataType: string
+		lineageTag: c64a213f-e2ea-489e-acfc-888916640f0e
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sun
+		dataType: string
+		lineageTag: e064169d-f85f-41d1-aa4b-2a218fc9980b
+		summarizeBy: none
+		sourceColumn: Sun
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mon
+		dataType: string
+		lineageTag: fa33190f-a85e-4b88-a827-e01ae7099f83
+		summarizeBy: none
+		sourceColumn: Mon
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tue
+		dataType: string
+		lineageTag: bb4608c2-41c5-4ab5-9a40-f2110dbe065b
+		summarizeBy: none
+		sourceColumn: Tue
+
+		annotation SummarizationSetBy = Automatic
+
+	column Wed
+		dataType: string
+		lineageTag: 66a733db-a65d-4cfc-ab3d-1d6ef7d8fded
+		summarizeBy: none
+		sourceColumn: Wed
+
+		annotation SummarizationSetBy = Automatic
+
+	column Thu
+		dataType: string
+		lineageTag: 92c52b6e-3063-4715-9e81-5103d985724b
+		summarizeBy: none
+		sourceColumn: Thu
+
+		annotation SummarizationSetBy = Automatic
+
+	column Fri
+		dataType: string
+		lineageTag: 168d1d2e-1e05-4dca-b89e-e30c4bb93fd7
+		summarizeBy: none
+		sourceColumn: Fri
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sat
+		dataType: string
+		lineageTag: d85eadf5-8c99-40af-abee-1f373e551d75
+		summarizeBy: none
+		sourceColumn: Sat
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				
+				    Names = 
+				        Table.Sort ( Table.Distinct ( Source[[Name]] ), { "Name", Order.Ascending } ),
+				        
+				    Result = 
+				        List.Accumulate (
+				            WeekdayNames,
+				            Names,
+				            ( s, c ) =>
+				                Table.AddColumn (
+				                    s,
+				                    c,
+				                    ( x ) =>
+				                        List.ReplaceMatchingItems (
+				                            {
+				                                Table.RowCount (
+				                                    Table.SelectRows (
+				                                        Source,
+				                                        ( y ) => y[Name] = x[Name] and y[Day of Week] = c
+				                                    )
+				                                )
+				                            },
+				                            { { 0, "" }, { 1, "Y" } }
+				                        ){0},
+				                    type text
+				                )
+				        )
+				in
+				    Result
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

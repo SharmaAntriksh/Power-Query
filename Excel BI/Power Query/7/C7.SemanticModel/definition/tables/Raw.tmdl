@@ -1,0 +1,31 @@
+table Raw
+	lineageTag: 63f73ea1-d2b5-4c98-90e0-f417d316aeca
+
+	column Name
+		dataType: string
+		lineageTag: e144266f-5c5c-4f33-8cdd-af885265adaa
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week'
+		dataType: string
+		lineageTag: 5fa4700b-fc15-4ee6-b929-dcdb1b3a8e7c
+		summarizeBy: none
+		sourceColumn: Day of Week
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Raw = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("fY/RCsIwDEV/JfTZnxB1DEGQKQwce6hbcIGaYNYK+3u3SaGw6es95eS0qkxpVZFhZxUHszGZkqk3lTl35OAkjtiO60l4ZS2xXVmj4WYZoZA7qu/H+RK+ipIcDrB10544cmy8KFxRdcqYt8zJ0I5iJU4aDs6ReA+51fecHM0LEEsu9glF8A7bByYnM7XcUN8IlMQetU+OrLFrwJ/snzNmrLHYfpSOYS8Yv76XJzG9AkIuocfk5ZLE5iWJxUsyN9Uf", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Name = _t, #"Day of Week" = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

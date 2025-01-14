@@ -1,0 +1,31 @@
+table Replacements
+	lineageTag: 72ff22a5-925f-4745-b165-2d55f96b6e3f
+
+	column From
+		dataType: string
+		lineageTag: d379880b-8aba-4906-99bb-b67dcc8660e2
+		summarizeBy: none
+		sourceColumn: From
+
+		annotation SummarizationSetBy = Automatic
+
+	column To
+		dataType: string
+		lineageTag: cbe219c8-2af5-45f5-841c-d9bd3d0e3c5e
+		summarizeBy: none
+		sourceColumn: To
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Replacements = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WSk4sUdJRcgaSsTrRSiUZqUBeCJAE8ZJSE4uAXCcQBeInF+UngxQDqfyUzJzUYrBoen4KUNAdSIJ4BUWVicVAfkFRYiVQPhYA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [From = _t, To = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

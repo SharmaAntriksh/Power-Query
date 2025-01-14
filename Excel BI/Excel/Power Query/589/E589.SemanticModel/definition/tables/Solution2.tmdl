@@ -1,0 +1,71 @@
+table Solution2
+	lineageTag: 15a7559d-7587-4c77-9968-d527a17f1b33
+
+	column Words
+		dataType: string
+		lineageTag: e8a059ed-8431-4b7b-bbf0-bca70673a229
+		summarizeBy: none
+		sourceColumn: Words
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Missing Alphabets'
+		dataType: string
+		lineageTag: fe73aa95-a076-4e10-98a1-08ac59667272
+		summarizeBy: none
+		sourceColumn: Missing Alphabets
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Highest Frequency'
+		dataType: string
+		lineageTag: 266b33d4-fa63-4539-bfff-100c89b022ba
+		summarizeBy: none
+		sourceColumn: Highest Frequency
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source =
+				let
+				    Source = Table,
+				    Transform = List.Transform (
+				        Source[Words],
+				        ( w ) =>
+				            let
+				                Words = w,
+				                TextList = Text.ToList ( Words ),
+				                MissingAlphabets = Text.Combine (
+				                    List.RemoveItems ( { "a" .. "z" }, TextList ),
+				                    ", "
+				                ),
+				                HighestFreq =
+				                    let
+				                        a = List.Transform (
+				                            TextList,
+				                            ( x ) => { x, List.Count ( List.Select ( TextList, ( y ) => y = x ) ) }
+				                        ),
+				                        b = List.Max ( List.Zip ( a ){1} ),
+				                        c = List.Zip ( List.Select ( a, ( z ) => z{1} = b ) ),
+				                        d = List.Sort (
+				                            List.Distinct ( c{0} ),
+				                            { each Character.ToNumber ( _ ), Order.Ascending }
+				                        ),
+				                        e = Text.Combine ( d, ", " )
+				                    in
+				                        e
+				            in
+				                { Words, MissingAlphabets, HighestFreq }
+				    ),
+				    ToTable = Table.FromRows (
+				        Transform,
+				        type table [ Words = text, Missing Alphabets = text, Highest Frequency = text ]
+				    )
+				in
+				    ToTable
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

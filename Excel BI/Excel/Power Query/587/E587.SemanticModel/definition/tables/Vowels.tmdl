@@ -1,0 +1,23 @@
+table Vowels
+	lineageTag: 58cd4b9a-a825-46e2-8f3b-7541d01d76d9
+
+	column Vowels
+		dataType: string
+		lineageTag: f27b96bc-c5ba-4807-bce2-b33cbf5164e6
+		summarizeBy: none
+		sourceColumn: Vowels
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Vowels = m
+		mode: import
+		source =
+				let
+				    Source = { "a", "e", "i", "o", "u"}
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = List
+

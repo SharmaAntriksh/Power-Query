@@ -1,0 +1,6 @@
+relationship AutoDetected_35dba0be-7402-49b1-93bb-b8e8461f48ba
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Raw (2)'.Data
+	toColumn: Raw.Data
+

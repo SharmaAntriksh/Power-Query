@@ -1,0 +1,90 @@
+table Solution1
+	lineageTag: 47fdcfad-9dc3-462e-aedf-54889c9fa789
+
+	column Employees
+		dataType: string
+		lineageTag: bfe43556-59a4-4131-b027-5942e30b0146
+		summarizeBy: none
+		sourceColumn: Employees
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-01
+		dataType: int64
+		formatString: 0
+		lineageTag: 225b07ea-32fa-40c8-9e09-afa4f39e1440
+		summarizeBy: sum
+		sourceColumn: 2022-10-01
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-02
+		dataType: int64
+		formatString: 0
+		lineageTag: 1a982d06-0d7f-46ee-8103-4bf8cf02ac31
+		summarizeBy: sum
+		sourceColumn: 2022-10-02
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-03
+		dataType: int64
+		formatString: 0
+		lineageTag: 791a4eca-6d87-4945-afff-6837e776b5af
+		summarizeBy: sum
+		sourceColumn: 2022-10-03
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-04
+		dataType: int64
+		formatString: 0
+		lineageTag: ff328d2d-bd91-4eca-a16f-dd43bdae6b25
+		summarizeBy: sum
+		sourceColumn: 2022-10-04
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-05
+		dataType: int64
+		formatString: 0
+		lineageTag: b8d5b6f3-83dd-4b92-947c-99271f52cd01
+		summarizeBy: sum
+		sourceColumn: 2022-10-05
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source = ```
+				let
+				    Source = 
+				        List.Sort ( List.Distinct ( Attendance[Date] ), Order.Ascending ),
+				    Result = 
+				        Table.Sort (
+				            List.Accumulate (
+				                Source,
+				                Employees,
+				                ( State, Current ) =>
+				                    Table.AddColumn (
+				                        State,
+				                        Date.ToText ( Current, [ Format = "yyyy-MM-dd" ] ),
+				                        (a) => Table.RowCount (
+				                            Table.SelectRows (
+				                                Attendance,
+				                                ( b ) => b[Employees] = a[Employees] and b[Date] = Current
+				                            )
+				                        ),
+				                        Int64.Type
+				                    )
+				            ),
+				            { { "Employees", Order.Ascending } }
+				        )
+				in
+				    Result
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

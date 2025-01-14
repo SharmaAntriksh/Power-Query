@@ -1,0 +1,8 @@
+relationship AutoDetected_7ac30945-09d5-4c12-9abc-0c7df53b1433
+	fromColumn: Solution1.Quantity
+	toColumn: Raw.Quantity
+
+relationship AutoDetected_fdc943b4-cd74-4240-894f-ebb4e6fb4c09
+	fromColumn: Solution2.Quantity
+	toColumn: Raw.Quantity
+

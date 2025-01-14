@@ -1,0 +1,41 @@
+table Raw
+	lineageTag: f3e5a728-e42d-48cf-9206-f86fe8bb398c
+
+	column Animals
+		dataType: string
+		lineageTag: 8b87dfac-4f24-42ef-a32c-c64e2f4ff044
+		summarizeBy: none
+		sourceColumn: Animals
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park
+		dataType: string
+		lineageTag: c3b51c16-4c2a-415b-9c2f-3483c75acb4c
+		summarizeBy: none
+		sourceColumn: Park
+
+		annotation SummarizationSetBy = Automatic
+
+	column Count
+		dataType: int64
+		formatString: 0
+		lineageTag: c8d2d4f6-a982-477f-95cb-2b012551d5fc
+		summarizeBy: sum
+		sourceColumn: Count
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Raw = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("ZZA7D4MwDIT/S2aWvIDOVZeqA0MlhojBUl2CigiK4P83r8HAdNLnO18cY9jdIm5gWcU68D8RtG7YUBlWiAwqeCKPGVcLy1YmPKhU1BvTvE3khW4F/yFWIc9rpaZEx/Athye3FKoizcn3NKInTSqbezd/SQ3Xl9eLRJ4w7kDz7cVIQSzOx3XhZHtobuqzM/7Q8Ac=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Animals = _t, Park = _t, Count = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Count", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

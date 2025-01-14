@@ -1,0 +1,102 @@
+table Solution1
+	lineageTag: d08404aa-b810-4939-b4c7-63eee3298198
+
+	column Animals
+		dataType: string
+		lineageTag: f37f3314-f25c-407e-a2c4-db2c368cb538
+		summarizeBy: none
+		sourceColumn: Animals
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park1
+		dataType: string
+		lineageTag: ea7571f9-4d83-4e21-b5a8-3e7543e5c22f
+		summarizeBy: none
+		sourceColumn: Park1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park2
+		dataType: string
+		lineageTag: a1e05015-029d-4572-a8b7-e02e79414306
+		summarizeBy: none
+		sourceColumn: Park2
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park3
+		dataType: string
+		lineageTag: a1996aee-1728-45aa-a223-e045c78e5839
+		summarizeBy: none
+		sourceColumn: Park3
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park4
+		dataType: string
+		lineageTag: 02d9caf6-c185-4337-8ce8-931603b4b4e8
+		summarizeBy: none
+		sourceColumn: Park4
+
+		annotation SummarizationSetBy = Automatic
+
+	column Park5
+		dataType: string
+		lineageTag: 8e62432c-8e09-4dc2-afbe-49de64a62e69
+		summarizeBy: none
+		sourceColumn: Park5
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    ReplacedValue = Table.ReplaceValue ( Source, "", null, Replacer.ReplaceValue, { "Animals" } ),
+				    FilledDown = Table.FillDown ( ReplacedValue, { "Animals" } ),
+				    Parks = List.Sort (
+				        List.Distinct ( FilledDown[Park] ),
+				        { each Text.End ( _, 1 ), Order.Ascending }
+				    ),
+				    Crossjoin = Table.FromRows (
+				        List.TransformMany (
+				            List.Distinct ( FilledDown[Animals] ),
+				            each Parks,
+				            ( x, y ) => { x, y }
+				        ),
+				        type table [Animals = text, Park = text]
+				    ),
+				    Merge = Table.AddColumn (
+				        Crossjoin,
+				        "Custom",
+				        ( x ) =>
+				            let
+				                n = (
+				                    Table.SelectRows (
+				                        FilledDown,
+				                        ( y ) => x[Animals] = y[Animals] and x[Park] = y[Park]
+				                    )[Count]{0}?
+				                )
+				                    ?? 0,
+				                r = 
+				                    if n = 0 then "NF" 
+				                        else 
+				                            if n > 20 then "Y" 
+				                                else 
+				                                    if n <= 20 then "N" 
+				                                        else null
+				            in
+				                r,
+				        type text
+				    ),
+				    Pivot = Table.Pivot ( Merge, List.Distinct ( Merge[Park] ), "Park", "Custom" )
+				in
+				    Pivot
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

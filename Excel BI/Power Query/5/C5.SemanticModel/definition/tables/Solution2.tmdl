@@ -1,0 +1,114 @@
+table Solution2
+	lineageTag: 0fb35785-e686-44fc-9474-8cb5a683dce2
+
+	column Country
+		dataType: string
+		lineageTag: e4e8c133-a5ac-41d6-a00d-81f48beaf407
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Population
+		dataType: int64
+		formatString: 0
+		lineageTag: e138b812-c658-4665-b0cd-abf7781eaa9b
+		summarizeBy: sum
+		sourceColumn: Population
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Growth Rate'
+		dataType: double
+		lineageTag: b33f95a4-9a71-43a5-92a1-3b4e12fc6ed6
+		summarizeBy: sum
+		sourceColumn: Growth Rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Area
+		dataType: double
+		lineageTag: f4b58d63-570b-4631-823d-c4e01fde7404
+		summarizeBy: sum
+		sourceColumn: Area
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Density
+		dataType: string
+		lineageTag: 2f6bd473-d352-42ac-81d4-aa4a69131d73
+		summarizeBy: none
+		sourceColumn: Density
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rank
+		dataType: int64
+		formatString: 0
+		lineageTag: e5155ba8-c392-47d6-854d-2a0fa93ffe65
+		summarizeBy: sum
+		sourceColumn: Rank
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    
+				    GroupedRows = 
+				        Table.Group (
+				            Source,
+				            "Data",
+				            {
+				                {
+				                    "Transformation",
+				                    each List.Transform ( _[Data], each try Number.From ( _ ) otherwise _ )
+				                }
+				            },
+				            GroupKind.Local,
+				            ( x, y ) =>
+				                Number.From (
+				                    List.Count (
+				                        List.RemoveMatchingItems (
+				                            Text.ToList ( Text.Lower ( y ) ),
+				                            { "a" .. "z", " " }
+				                        )
+				                    )
+				                        = 0
+				                )
+				        ),
+				    
+				    SortByPopulation =
+				        let
+				            x = List.Sort ( GroupedRows[Transformation], { each _{1}, Order.Descending } ),
+				            n = List.Positions ( x ),
+				            r = List.Transform ( List.Zip ( { x, n } ), ( z ) => z{0} & { z{1} + 1 } )
+				        in
+				            r,
+				    
+				    ToTable = 
+				        Table.FromRows (
+				            SortByPopulation,
+				            type table [
+				                Country = text,
+				                Population = Int64.Type,
+				                Growth Rate = Percentage.Type,
+				                Area = number,
+				                Density = text,
+				                Rank = Int64.Type
+				            ]
+				        )
+				in
+				    ToTable
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

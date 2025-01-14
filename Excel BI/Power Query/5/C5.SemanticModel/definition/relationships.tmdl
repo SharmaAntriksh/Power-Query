@@ -1,0 +1,12 @@
+relationship AutoDetected_0b92dae1-78cc-4cb1-b694-4d8aa6a518e6
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution2.Country
+	toColumn: Solution1.Country
+
+relationship AutoDetected_8d22e50d-ed6e-4202-93a8-dba0dab289c5
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution3.Country
+	toColumn: Solution1.Country
+

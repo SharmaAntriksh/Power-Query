@@ -1,0 +1,61 @@
+table Solution2
+	lineageTag: 2fdb97b4-7a83-4d31-bd1f-3f92e495a055
+
+	column Subjects
+		dataType: string
+		lineageTag: f89a83e9-811d-401f-9281-b8d5d5fb347c
+		summarizeBy: none
+		sourceColumn: Subjects
+
+		annotation SummarizationSetBy = Automatic
+
+	column Count
+		dataType: int64
+		formatString: 0
+		lineageTag: e33473ef-2f1d-4875-8cc1-8848799f516d
+		summarizeBy: sum
+		sourceColumn: Count
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				
+				    SplitSubjects = 
+				        Table.AddColumn (
+				            Source,
+				            "Transformation",
+				            each List.Distinct (
+				                List.Transform (
+				                    List.Select ( Text.SplitAny ( [Subjects], ", #%;+-" ), each _ <> "" ),
+				                    ( x ) => Text.Proper ( Text.Trim ( x ) )
+				                )
+				            )
+				        ),
+				
+				    Combine = 
+				        Table.FromColumns (
+				            { List.Combine ( SplitSubjects[Transformation] ) },
+				            type table [ Subjects = text ]
+				        ),
+				
+				    GroupedRows = 
+				        Table.Sort (
+				            Table.Group (
+				                Combine,
+				                { "Subjects" },
+				                { { "Count", each Table.RowCount ( _ ), Int64.Type } }
+				            ),
+				            { { "Count", Order.Descending } }
+				        )
+				in
+				    GroupedRows
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

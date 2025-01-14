@@ -1,0 +1,12 @@
+relationship AutoDetected_c9da1b5a-0797-4fcb-84a5-274f7ab00ca0
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution1.Employee
+	toColumn: Raw.Employee
+
+relationship AutoDetected_24bd3859-3fff-48f2-ba96-81ae51dcfa0a
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Solution2.'Total Leaves'
+	toColumn: Solution1.'Total Leaves'
+

@@ -1,0 +1,63 @@
+table Table
+	lineageTag: 35923e5f-379f-45e0-9a6f-7c53550cd8f4
+
+	column Hall
+		dataType: string
+		lineageTag: a049c402-d5e1-475a-bc90-5efe74a22f50
+		summarizeBy: none
+		sourceColumn: Hall
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: string
+		lineageTag: ca3ae07b-d3a9-413a-8167-9de41d56d37f
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column Guest1
+		dataType: string
+		lineageTag: 291adfef-0c15-4179-8b82-761040220a01
+		summarizeBy: none
+		sourceColumn: Guest1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Guest2
+		dataType: string
+		lineageTag: 33204fb2-5dc4-44c3-82dc-5b6854c04577
+		summarizeBy: none
+		sourceColumn: Guest2
+
+		annotation SummarizationSetBy = Automatic
+
+	column Guest3
+		dataType: string
+		lineageTag: 5bf453ce-708c-4314-9dca-08976caa6068
+		summarizeBy: none
+		sourceColumn: Guest3
+
+		annotation SummarizationSetBy = Automatic
+
+	column Guest4
+		dataType: string
+		lineageTag: 4411eaaa-1979-4b30-bbf7-8963af110267
+		summarizeBy: none
+		sourceColumn: Guest4
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Table = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45W8kjMyTFU0lEyMNQ1MNI1MjAyBnIcgdgJiEEoVgdJkRGSogggjgTiKCAOhCszQjcrCGoOklFgNSZIaoKBOACmKBYA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Hall = _t, Date = _t, Guest1 = _t, Guest2 = _t, Guest3 = _t, Guest4 = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

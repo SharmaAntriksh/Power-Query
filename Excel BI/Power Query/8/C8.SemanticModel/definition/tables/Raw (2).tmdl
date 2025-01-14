@@ -1,0 +1,32 @@
+table 'Raw (2)'
+	lineageTag: 0391d7d2-65b1-4d9b-acad-2e6e702fa8f6
+
+	column Data
+		dataType: string
+		lineageTag: 9a15b265-a924-42ac-b832-c13e790826ba
+		summarizeBy: none
+		sourceColumn: Data
+
+		annotation SummarizationSetBy = Automatic
+
+	column Custom
+		dataType: string
+		lineageTag: 78679735-cf03-4cef-aebc-4f506e4292ba
+		summarizeBy: none
+		sourceColumn: Custom
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Raw (2)' = m
+		mode: import
+		source =
+				let
+				    Source = Raw,
+				    #"Added Custom" = Table.AddColumn(Source, "Custom", each List.Transform ( Splitter.SplitTextByCharacterTransition (  {"0".."9"}, { "a".."z", "A".."Z", ",", ":", " ", "-"})([Data]), (x) => Text.Trim ( Text.Replace ( x, ",", "" ) ) ) )
+				in
+				    #"Added Custom"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

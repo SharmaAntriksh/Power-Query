@@ -1,0 +1,66 @@
+table Solution1
+	lineageTag: 6ca055c8-737e-4e0b-bacc-142a3d8ee58e
+
+	column Strings
+		dataType: string
+		lineageTag: 68c6dc69-3118-46e9-a921-dfca0ca9498f
+		summarizeBy: none
+		sourceColumn: Strings
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Answer Expected'
+		dataType: string
+		lineageTag: 950b6f53-01d7-493d-9b39-37a355f5f357
+		summarizeBy: none
+		sourceColumn: Answer Expected
+
+		annotation SummarizationSetBy = Automatic
+
+	column Answer
+		dataType: string
+		lineageTag: 3b88b6b7-80fa-4b2c-8c41-ccfb30f98759
+		summarizeBy: none
+		sourceColumn: Answer
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source = ```
+				let
+				    Source = Table.AddColumn (
+				        Table,
+				        "Answer",
+				        ( z ) =>
+				            let
+				                a = Text.ToList ( z[Strings] ),
+				                b = List.Skip (
+				                    List.Accumulate (
+				                        a,
+				                        { 1 },
+				                        ( s, c ) =>
+				                            s
+				                                & (
+				                                    if List.Contains ( Vowels, c ) then
+				                                        { List.Last ( List.Select ( s, each _ <> 0 ) ) + 1 }
+				                                    else
+				                                        { 0 }
+				                                )
+				                    )
+				                ),
+				                c = List.Transform ( b, each if _ > 0 then _ - 1 else _ ),
+				                d = List.Zip ( { a, c } ),
+				                e = List.Transform ( d, each Text.Repeat ( _{0}, if _{1} = 0 then 1 else _{1} ) )
+				            in
+				                Text.Combine ( e ), 
+				            type text
+				    )
+				in
+				    Source
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

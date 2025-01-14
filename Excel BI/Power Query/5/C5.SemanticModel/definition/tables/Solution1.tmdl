@@ -1,0 +1,146 @@
+table Solution1
+	lineageTag: f2f8fcf0-e3c9-4a8c-afa4-dc6b56e36527
+
+	column Country
+		dataType: string
+		lineageTag: 62b2263a-ae00-4fa2-a174-4bcd4859a331
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Population
+		dataType: int64
+		formatString: 0
+		lineageTag: 6a9247ae-11da-4a6f-b18b-9a59d1e45242
+		summarizeBy: sum
+		sourceColumn: Population
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Growth Rate'
+		dataType: double
+		lineageTag: a57b2e9a-f3c8-41c0-aec7-2c6543fad028
+		summarizeBy: sum
+		sourceColumn: Growth Rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Area
+		dataType: int64
+		formatString: 0
+		lineageTag: 8bbcf52b-fcc4-4893-9877-caeb0c8fb555
+		summarizeBy: sum
+		sourceColumn: Area
+
+		annotation SummarizationSetBy = Automatic
+
+	column Density
+		dataType: string
+		lineageTag: 847e0e6d-f166-4c67-bc1e-a79209296732
+		summarizeBy: none
+		sourceColumn: Density
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rank
+		dataType: int64
+		formatString: 0
+		lineageTag: 05e70dea-b64b-4336-9658-72309d333ef3
+		summarizeBy: sum
+		sourceColumn: Rank
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    
+				    AddedIndex = 
+				        Table.TransformColumns (
+				            Table.AddIndexColumn ( Source, "Index", 0, 1, Int64.Type ),
+				            { { "Index", each Number.Mod ( _, 5 ) + 1 } }
+				        ),
+				
+				    AddedCustom = 
+				        Table.AddColumn (
+				            AddedIndex,
+				            "Custom",
+				            each [
+				                Country = if [Index] = 1 then [Data] else null,
+				                Data    = if [Index] <> 1 then [Data] else null
+				            ]
+				        ),
+				
+				    ExpandedCustom = 
+				        Table.ExpandRecordColumn (
+				            AddedCustom,
+				            "Custom",
+				            { "Country", "Data" },
+				            { "Country", "Data.1" }
+				        ),
+				
+				    FilledDown = 
+				        Table.FillDown ( ExpandedCustom, { "Country" } ),
+				
+				    FilteredRows = 
+				        Table.SelectRows ( FilledDown, each ( [Data.1] <> null ) ),
+				
+				    RemovedOtherColumns = 
+				        Table.SelectColumns ( FilteredRows, { "Country", "Data.1" } ),
+				
+				    RenamedColumns = 
+				        Table.RenameColumns ( RemovedOtherColumns, { { "Data.1", "Data" } } ),
+				
+				    GroupedRows = 
+				        Table.Group (
+				            RenamedColumns,
+				            { "Country" },
+				            {
+				                {
+				                    "Count",
+				                    each Table.FromRows (
+				                        { _[Data] },
+				                        { "Population", "Growth Rate", "Area", "Density" }
+				                    )
+				                }
+				            }
+				        ),
+				
+				    ExpandedCount = 
+				        Table.ExpandTableColumn (
+				            GroupedRows,
+				            "Count",
+				            { "Population", "Growth Rate", "Area", "Density" },
+				            { "Population", "Growth Rate", "Area", "Density" }
+				        ),
+				
+				    ChangedType = 
+				        Table.TransformColumnTypes (
+				            ExpandedCount,
+				            {
+				                { "Country", type text },
+				                { "Population", Int64.Type },
+				                { "Growth Rate", Percentage.Type },
+				                { "Area", Int64.Type },
+				                { "Density", type text }
+				            }
+				        ),
+				
+				    SortedRows = 
+				        Table.Sort ( ChangedType, { { "Population", Order.Descending } } ),
+				        
+				    AddedIndex1 = 
+				        Table.AddIndexColumn ( SortedRows, "Rank", 1, 1, Int64.Type )
+				in
+				    AddedIndex1
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

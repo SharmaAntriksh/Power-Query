@@ -1,0 +1,117 @@
+table Solution3
+	lineageTag: 658ce04c-6df1-4682-9e4c-d11d8d9efedb
+
+	column Country
+		dataType: string
+		lineageTag: 3dc1607f-9684-4b30-bb2a-5d8ed5180432
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Population
+		dataType: int64
+		formatString: 0
+		lineageTag: 97df00cc-fd3c-4406-aa8b-73c25c6dc293
+		summarizeBy: sum
+		sourceColumn: Population
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Growth Rate'
+		dataType: double
+		lineageTag: b3df1678-fef3-4154-b293-6dca25957306
+		summarizeBy: sum
+		sourceColumn: Growth Rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Area
+		dataType: double
+		lineageTag: 9ab54e7c-f958-48ad-b4d6-6392a25edc4c
+		summarizeBy: sum
+		sourceColumn: Area
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Density
+		dataType: string
+		lineageTag: ae7ceb21-02be-4be6-b5aa-dd0f20b5a41b
+		summarizeBy: none
+		sourceColumn: Density
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rank
+		dataType: int64
+		formatString: 0
+		lineageTag: a1992f42-1d1d-4334-a83b-078284fb6849
+		summarizeBy: sum
+		sourceColumn: Rank
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution3 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				    
+				    ColumnNameTypes = 
+				        type table [
+				            Country = text,
+				            Population = Int64.Type,
+				            Growth Rate = Percentage.Type,
+				            Area = number,
+				            Density = text
+				        ],
+				
+				    GroupedRows = 
+				        Table.Group (
+				            Source,
+				            "Data",
+				            {
+				                {
+				                    "Transformation",
+				                    each
+				                        let
+				                            a = List.Transform ( _[Data], each try Number.From ( _ ) otherwise _ ),
+				                            b = Table.FromRows ( { a }, ColumnNameTypes )
+				                        in
+				                            b,
+				                    ColumnNameTypes
+				                }
+				            },
+				            GroupKind.Local,
+				            ( x, y ) =>
+				                Number.From (
+				                    List.Count (
+				                        List.RemoveMatchingItems (
+				                            Text.ToList ( Text.Lower ( y ) ),
+				                            { "a" .. "z", " " }
+				                        )
+				                    )
+				                        = 0
+				                )
+				        ),
+				
+				    CombineSort = 
+				        Table.Sort (
+				            Table.Combine ( GroupedRows[Transformation] ),
+				            { { "Population", Order.Descending } }
+				        ),
+				
+				    Rank = 
+				        Table.AddIndexColumn ( CombineSort, "Rank", 1, 1, Int64.Type )
+				in
+				    Rank
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

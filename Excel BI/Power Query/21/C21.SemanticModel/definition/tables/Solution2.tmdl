@@ -1,0 +1,109 @@
+table Solution2
+	lineageTag: 90cce548-95dc-47a0-8d91-5456495722aa
+
+	column Employees
+		dataType: string
+		lineageTag: ecaf2412-b131-4312-9779-811efb7f1f5c
+		summarizeBy: none
+		sourceColumn: Employees
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-01
+		dataType: int64
+		formatString: 0
+		lineageTag: f445496e-f472-4c6a-a178-a185a27dfaed
+		summarizeBy: sum
+		sourceColumn: 2022-10-01
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-02
+		dataType: int64
+		formatString: 0
+		lineageTag: 9c0f4561-00d4-415c-b17b-a3fcea3a63cf
+		summarizeBy: sum
+		sourceColumn: 2022-10-02
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-03
+		dataType: int64
+		formatString: 0
+		lineageTag: 103116a8-431c-424d-93b3-519280b77310
+		summarizeBy: sum
+		sourceColumn: 2022-10-03
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-04
+		dataType: int64
+		formatString: 0
+		lineageTag: 5bd19991-91c0-43d1-aa9e-d351108880f0
+		summarizeBy: sum
+		sourceColumn: 2022-10-04
+
+		annotation SummarizationSetBy = Automatic
+
+	column 2022-10-05
+		dataType: int64
+		formatString: 0
+		lineageTag: 55796346-8a33-4bd8-a1ba-6fe539cace74
+		summarizeBy: sum
+		sourceColumn: 2022-10-05
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution2 = m
+		mode: import
+		source = ```
+				let
+				    Source = 
+				        Employees,
+				    GetDateList = 
+				        Table.AddColumn (
+				            Source,
+				            "Date",
+				            each List.Distinct ( List.Sort ( Attendance[Date] ) ),
+				            type list
+				        ),
+				    Crossjoin = 
+				        Table.ExpandListColumn ( GetDateList, "Date" ),
+				    SortedRows = 
+				        Table.Sort ( Crossjoin, { { "Date", Order.Ascending } } ),
+				    Merge = 
+				        Table.AddColumn (
+				            SortedRows,
+				            "MergeAttendance",
+				            ( a ) =>
+				                Table.RowCount (
+				                    Table.SelectRows (
+				                        Attendance,
+				                        ( b ) => a[Employees] = b[Employees] and a[Date] = b[Date]
+				                    )
+				                )
+				        ),
+				    TransformColumns = 
+				        Table.TransformColumns (
+				            Merge,
+				            {
+				                { "Date", each Date.ToText ( _, [ Format = "yyyy-MM-dd" ] ), type text },
+				                { "MergeAttendance", Number.From, Int64.Type }
+				            }
+				        ),
+				    Pivot = 
+				        Table.Pivot (
+				            TransformColumns,
+				            List.Distinct ( TransformColumns[Date] ),
+				            "Date",
+				            "MergeAttendance",
+				            List.Sum
+				        )
+				in
+				    Pivot
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

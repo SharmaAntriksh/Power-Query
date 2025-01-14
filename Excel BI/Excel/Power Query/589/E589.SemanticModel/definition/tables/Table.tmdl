@@ -1,0 +1,23 @@
+table Table
+	lineageTag: e8ce2e6b-5520-47a5-81c5-1ac30f138254
+
+	column Words
+		dataType: string
+		lineageTag: b28faee1-bd3f-4fa4-9f3b-233cdde559e3
+		summarizeBy: none
+		sourceColumn: Words
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Table = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("LY4xDsMwDAP/krk/MjIoslMTsCVDkovm93WbLhwIHo4pbVVFDSeYDjTEzBAEBY7p2/5IG0kgw4sHHQ1ee5EgAwm8/wbDy8x6Z72GDjKKepl+sXvicxRjajiNnsviAS7vgdVkZehfNaTMvu7MFkYdbOqsA+wLYX1pYxJlFahjEfsH", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Words = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

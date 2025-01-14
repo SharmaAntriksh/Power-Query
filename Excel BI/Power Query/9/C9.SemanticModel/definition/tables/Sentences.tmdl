@@ -1,0 +1,23 @@
+table Sentences
+	lineageTag: cbe3f5a7-907d-4deb-97ec-f4d8c51de87c
+
+	column 'Original Text'
+		dataType: string
+		lineageTag: ab220732-89c0-418d-9a1f-c5703198d781
+		summarizeBy: none
+		sourceColumn: Original Text
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Sentences = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("LcxBCoMwEIXhqzyyFgnd9ADdeIc0izGmphA6YWZEvL1Run3fzwvBJbIBC6/YM4mikOHDAqoVndTFITgrGXPn9+b946lolQ7F/rWCJJzuZspocpDCGFe/8jLe8CIjNeHWR/79T+MJ", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Original Text" = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

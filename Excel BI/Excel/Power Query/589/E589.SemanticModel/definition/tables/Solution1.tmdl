@@ -1,0 +1,68 @@
+table Solution1
+	lineageTag: 35c88fdc-d774-4590-b66c-376bf80b99aa
+
+	column Words
+		dataType: string
+		lineageTag: 83a37fa4-5039-462e-a5f9-f028544f9f34
+		summarizeBy: none
+		sourceColumn: Words
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Missing Alphabets'
+		dataType: string
+		lineageTag: 661bff81-a320-45ac-8651-ac48f0fd29b0
+		summarizeBy: none
+		sourceColumn: Missing Alphabets
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Highest Freq'
+		dataType: string
+		lineageTag: 1254d199-f7e9-4ec5-8052-8bb92801f697
+		summarizeBy: none
+		sourceColumn: Highest Freq
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source =
+				let
+				    Source = Table,
+				    AddedCustom = Table.AddColumn (
+				        Source,
+				        "Custom",
+				        each [
+				            TextList = Text.ToList ( [Words] ),
+				            Missing Alphabets = Text.Combine (
+				                List.RemoveItems ( { "a" .. "z" }, TextList ),
+				                ", "
+				            ),
+				            Highest Freq =
+				                let
+				                    a = List.Transform (
+				                        TextList,
+				                        ( x ) => { x, List.Count ( List.Select ( TextList, ( y ) => y = x ) ) }
+				                    ),
+				                    b = List.Max ( List.Zip ( a ){1} ),
+				                    c = List.Zip ( List.Select ( a, ( z ) => z{1} = b ) ),
+				                    d = List.Distinct ( c{0} ),
+				                    e = Text.Combine ( d, ", " )
+				                in
+				                    e
+				        ][[Missing Alphabets], [Highest Freq]]
+				    ),
+				    ExpandedCustom = Table.ExpandRecordColumn (
+				        AddedCustom,
+				        "Custom",
+				        { "Missing Alphabets", "Highest Freq" },
+				        { "Missing Alphabets", "Highest Freq" }
+				    )
+				in
+				    ExpandedCustom
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

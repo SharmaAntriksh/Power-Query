@@ -1,0 +1,33 @@
+table Solution3
+	lineageTag: 52bd0081-3edf-47e9-b8e8-d9634fb2ba79
+
+	column Data1
+		dataType: string
+		lineageTag: 8017abef-2a77-4045-a059-8e4143f02889
+		summarizeBy: none
+		sourceColumn: Data1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Data2
+		dataType: string
+		lineageTag: acc647a5-0bfe-49e2-ac3e-f0da0b20bcc6
+		summarizeBy: none
+		sourceColumn: Data2
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution3 = m
+		mode: import
+		source =
+				let
+				    Source = Table,
+				    GroupedRows = Table.Group(Source, {"Hall"}, {{"Transform", each let t = _, Unpivot = Table.UnpivotOtherColumns ( t, {}, "Data1", "Data2" ), RemoveBlanks = Table.SelectRows ( Unpivot, each [Data2] <> "" ), TransformColumnTypes = Table.TransformColumns ( RemoveBlanks, { { "Data2", each Value.FromText ( _ ), type nullable any } } ) in TransformColumnTypes, type table [ Data1 = text, Data2 = nullable any ] }}),
+				    CombineTables = Table.Combine ( GroupedRows[Transform] )
+				in
+				    CombineTables
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

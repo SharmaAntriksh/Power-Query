@@ -1,0 +1,43 @@
+table Solution1
+	lineageTag: 6e032408-0b77-407f-920e-eaabcefb9472
+
+	column Data1
+		dataType: string
+		lineageTag: 13b5f198-831b-4e55-963e-1690351d654e
+		summarizeBy: none
+		sourceColumn: Data1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Data2
+		dataType: string
+		lineageTag: b2547ce7-d941-4742-bd1c-2be609416cd4
+		summarizeBy: none
+		sourceColumn: Data2
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source =
+				let
+				    Source = Table,
+				    Transform = List.Transform (
+				        Table.ToRows ( Source ),
+				        ( x ) =>
+				            Table.SelectRows (
+				                Table.FromRows (
+				                    List.Zip ( { Table.ColumnNames ( Source ), x } ),
+				                    type table [ Data1 = text, Data2 = text ]
+				                ),
+				                each [Data2] <> ""
+				            )
+				    ),
+				    CombineTables = Table.Combine ( Transform )
+				in
+				    CombineTables
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,21 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBIDesktopVersion = 2.137.1102.0 (24.10)
+
+annotation PBI_QueryOrder = ["Raw","Raw (2)"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Raw
+ref table 'Raw (2)'
+
+ref cultureInfo en-US
+

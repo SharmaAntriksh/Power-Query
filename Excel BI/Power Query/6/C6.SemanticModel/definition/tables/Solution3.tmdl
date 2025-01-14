@@ -1,0 +1,59 @@
+table Solution3
+	lineageTag: a8292978-ac54-46ec-9f4c-2bc4f6d1218f
+
+	column Subjects
+		dataType: string
+		lineageTag: ca3cb76d-73d4-482b-9038-741c9dfa4849
+		summarizeBy: none
+		sourceColumn: Subjects
+
+		annotation SummarizationSetBy = Automatic
+
+	column Count
+		dataType: int64
+		formatString: 0
+		lineageTag: 74a75552-b07f-41d9-8b1c-891ebd83af66
+		summarizeBy: sum
+		sourceColumn: Count
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution3 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				
+				    Transformation = 
+				        List.Accumulate (
+				            Source[Subjects],
+				            {},
+				            ( s, c ) =>
+				                s
+				                    & List.Distinct (
+				                        List.Transform (
+				                            List.RemoveMatchingItems ( Text.SplitAny ( c, ", #%;+-" ), { "" } ),
+				                            ( x ) => Text.Proper ( Text.Trim ( x ) )
+				                        )
+				                    )
+				        ),
+				
+				    Count = 
+				        List.Transform (
+				            List.Distinct ( Transformation ),
+				            ( x ) => { x, List.Count ( List.Select ( Transformation, ( y ) => y = x ) ) }
+				        ),
+				
+				    Sort = 
+				        List.Sort ( Count, { each _{1}, Order.Descending } ),
+				        
+				    ToTable = 
+				        Table.FromRows ( Sort, type table [ Subjects = text, Count = Int64.Type ] )
+				in
+				    ToTable
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

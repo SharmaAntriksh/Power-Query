@@ -1,0 +1,120 @@
+table Solution1
+	lineageTag: c0ed75a2-2616-43f7-95eb-78076506ec7d
+
+	column Name
+		dataType: string
+		lineageTag: 2e725d9c-34fc-4feb-b5a7-7cd91cf921d4
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sun
+		dataType: string
+		lineageTag: 61cded48-115b-402f-82a5-cee32c91ac97
+		summarizeBy: none
+		sourceColumn: Sun
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mon
+		dataType: string
+		lineageTag: adc4fe60-0b77-4439-9fa0-2fad67eb7417
+		summarizeBy: none
+		sourceColumn: Mon
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tue
+		dataType: string
+		lineageTag: e6ca64db-687e-4b4e-a13e-afd676af0551
+		summarizeBy: none
+		sourceColumn: Tue
+
+		annotation SummarizationSetBy = Automatic
+
+	column Wed
+		dataType: string
+		lineageTag: 39491a0d-1b16-48c7-bb5e-5cc723f07d9f
+		summarizeBy: none
+		sourceColumn: Wed
+
+		annotation SummarizationSetBy = Automatic
+
+	column Thu
+		dataType: string
+		lineageTag: f5c8c658-0797-4315-b071-1187e68ae302
+		summarizeBy: none
+		sourceColumn: Thu
+
+		annotation SummarizationSetBy = Automatic
+
+	column Fri
+		dataType: string
+		lineageTag: 36878a41-a28e-49ce-9fec-0312b6acd314
+		summarizeBy: none
+		sourceColumn: Fri
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sat
+		dataType: string
+		lineageTag: ac70be0c-5da5-4c45-9079-acf0cb3dea25
+		summarizeBy: none
+		sourceColumn: Sat
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution1 = m
+		mode: import
+		source = ```
+				let
+				    Source = Raw,
+				
+				    GroupedRows = Table.Group ( Source, { "Name" }, { { "Count", each _[Day of Week] } } ),
+				
+				    AddedCustom = 
+				        Table.AddColumn (
+				            GroupedRows,
+				            "Custom",
+				            ( x ) =>
+				                let
+				                    a = List.Transform (
+				                        WeekdayNames,
+				                        ( y ) => if List.Contains ( x[Count], y ) then { y, "Y" } else { y, null }
+				                    ),
+				                    b = List.Transform ( a, each _ )
+				                in
+				                    Table.PromoteHeaders ( Table.FromColumns ( b ) )
+				        )[[Name], [Custom]],
+				
+				    ExpandedCustom = Table.ExpandTableColumn (
+				        AddedCustom,
+				        "Custom",
+				        { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" },
+				        { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }
+				    ),
+				
+				    SortedRows = Table.Sort ( ExpandedCustom, { { "Name", Order.Ascending } } ),
+				    
+				    ChangedType = Table.TransformColumnTypes (
+				        SortedRows,
+				        {
+				            { "Name", type text },
+				            { "Sun", type text },
+				            { "Mon", type text },
+				            { "Tue", type text },
+				            { "Wed", type text },
+				            { "Thu", type text },
+				            { "Fri", type text },
+				            { "Sat", type text }
+				        }
+				    )
+				in
+				    ChangedType
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
