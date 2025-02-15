@@ -1,0 +1,90 @@
+table Solution1
+	lineageTag: b0e6148e-0e73-49ab-b299-890eb9e01a74
+
+	column 'Store No'
+		dataType: string
+		lineageTag: b09daed7-5748-4a8c-be8f-b1cf4e22a4d6
+		summarizeBy: none
+		sourceColumn: Store No
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Store Name'
+		dataType: string
+		lineageTag: ddc1a71a-61da-465c-846a-ee04f44b16bb
+		summarizeBy: none
+		sourceColumn: Store Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Customer
+		dataType: string
+		lineageTag: f5e92103-cdf4-4f27-8db5-ae10583f594f
+		summarizeBy: none
+		sourceColumn: Customer
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'First Visit Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 9effc940-efd5-4de2-95a1-9bf1a8bff3f7
+		summarizeBy: none
+		sourceColumn: First Visit Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Last Purchase Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b9d7e39f-079d-4ade-8d52-a9126f758a65
+		summarizeBy: none
+		sourceColumn: Last Purchase Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition Solution1 = m
+		mode: import
+		source =
+				let
+				    Source = Table,
+				    GroupedRows = Table.Group (
+				        Source,
+				        { "Store No", "Store Name" },
+				        {
+				            {
+				                "Solution",
+				                each Table.PromoteHeaders (
+				                    Table.Skip ( Table.RemoveColumns ( _, "Store Name" ), 1 )
+				                )
+				            }
+				        },
+				        GroupKind.Local,
+				        ( x, y ) => Byte.From ( y[Store Name] <> "" )
+				    ),
+				    ExpandedSolution = Table.ExpandTableColumn (
+				        GroupedRows,
+				        "Solution",
+				        { "Customer", "First Visit Date", "Last Purchase Date" },
+				        { "Customer", "First Visit Date", "Last Purchase Date" }
+				    ),
+				    ChangedType = Table.TransformColumnTypes (
+				        ExpandedSolution,
+				        {
+				            { "Customer", type text },
+				            { "First Visit Date", type date },
+				            { "Last Purchase Date", type date }
+				        },
+				        "en-GB"
+				    )
+				in
+				    ChangedType
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,12 @@
+expression Table =
+		let
+		    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("rVHLasMwEPwV43MEkuy2zrFJmkMaQ+mhOZgc1olKFmQHJKXQfn1XkTbOvQWBmNnZ2VfXlc/lrGzh8E1ffPtZVy4vPpwH4xK1RudD8YEeQ7GCYIjaAjFvF3c4gTeJjHkbGIxPSUoLqYSWuiagKyEfE4iyFlyupmtBQgpoLv1+7o0LKSop7Yk97kDULYjagR2AxX9r3IwjfnIeNS6bWKpi3xYpwdjcNI02v402gSjc4niE7EKRil3kg6B3BVG2gi88ZlkjZM1u1+CLxR/oTTjlco1Q8uajhFKTz5Ko16L9nyXs0FqEYbrfnC9Dx7vvfgGuB5fHVLysOs/M29j/Ag==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Store No" = _t, #"Store Name" = _t, Column1 = _t, Column2 = _t]),
+		    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Store No", type text}, {"Store Name", type text}, {"Column1", type text}, {"Column2", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: f8e95dc4-6164-4cb6-b005-3cad56f3e9c3
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
