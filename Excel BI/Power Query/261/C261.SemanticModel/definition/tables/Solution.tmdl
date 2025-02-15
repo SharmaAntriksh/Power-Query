@@ -1,0 +1,92 @@
+table Solution
+	lineageTag: ccabfff3-c890-4137-b1ca-c205de2561e2
+
+	column Country
+		dataType: string
+		lineageTag: e6f78f98-6558-4c9a-8dc8-966646299ee1
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 621e6ab9-fe8e-4e75-88e5-2f3d2389c038
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cities
+		dataType: string
+		lineageTag: 91a65b6b-2934-47ce-951f-e8bacef5608a
+		summarizeBy: none
+		sourceColumn: Cities
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Solution = m
+		mode: import
+		source =
+				let
+				    Source = Table,
+				    GroupedRows = Table.Group (
+				        Source,
+				        { "Data1" },
+				        {
+				            {
+				                "T1",
+				                each
+				                    let
+				                        GroupedTable = _,
+				                        SkipFirstRow = Table.RemoveFirstN ( GroupedTable, 1 ),
+				                        StateCities = Table.Group (
+				                            SkipFirstRow,
+				                            { "Data1" },
+				                            {
+				                                {
+				                                    "T2",
+				                                    each
+				                                        let
+				                                            a = _[Data2],
+				                                            StateNames = List.First ( a ),
+				                                            CityNames = List.Last ( a ),
+				                                            SplitCities = Text.Split ( CityNames, ", " ),
+				                                            Merge = {
+				                                                { StateNames }
+				                                                    & List.Repeat (
+				                                                        { null },
+				                                                        List.Count ( SplitCities ) - 1
+				                                                    )
+				                                            }
+				                                                & { SplitCities }
+				                                        in
+				                                            Table.FromColumns ( Merge )
+				                                }
+				                            },
+				                            GroupKind.Local,
+				                            ( x, y ) => Byte.From ( y[Data1] = "State" )
+				                        ),
+				                        CombineTables = Table.Combine ( StateCities[T2] ),
+				                        RepeatCountry = { GroupedTable[Data2]{0} }
+				                            & List.Repeat ( { null }, Table.RowCount ( CombineTables ) - 1 ),
+				                        MergeColumns = Table.FromColumns (
+				                            { RepeatCountry } & Table.ToColumns ( CombineTables ),
+				                            type table [ Country = text, State = text, Cities = text ]
+				                        )
+				                    in
+				                        MergeColumns,
+				                type table [ Country = text, State = text, Cities = text ]
+				            }
+				        },
+				        GroupKind.Local,
+				        ( x, y ) => Byte.From ( y[Data1] = "Country" )
+				    ),
+				    Combine = Table.Combine ( GroupedRows[T1] )
+				in
+				    Combine
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

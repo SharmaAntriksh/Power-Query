@@ -1,0 +1,32 @@
+table Table
+	lineageTag: cf00a472-9785-4590-8e0e-c5eadf6de91d
+
+	column Data1
+		dataType: string
+		lineageTag: 6d4ccf91-94cf-478f-9be0-9623fe0d809e
+		summarizeBy: none
+		sourceColumn: Data1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Data2
+		dataType: string
+		lineageTag: 9ef34f31-413e-4088-bef4-41b548d4480f
+		summarizeBy: none
+		sourceColumn: Data2
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Table = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("XU/LCgIxDPyV0nN/Yq34OCiIKMjiIboRw8ZE0lbx7y2CQr0lk5nJTN/7qEWyvXzwu23nj6H32wwZ6x6B6aImBB84UiZMFZ+gjcj4Cm4GZBdCHupoeFPJrYGyGgzayqcoD7SGuManO6iNLbHjE0j9Mi0y0vf4S9uVlK0mhMZpT+es9p94hXzSYoLBLeBGnFUa1aYgSmKQodXF2k9ScMt7etL5GtxceXBRIdWixzc=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Data1 = _t, Data2 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Data1", type text}, {"Data2", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
